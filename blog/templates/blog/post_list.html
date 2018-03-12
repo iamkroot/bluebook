@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Posts</title>
+</head>
+<body>
+    <h2>Posts</h2>
+    {% for blogpost in latest %}
+        <h4><a href="{% url 'post-detail' blogpost.pk %}">{{ blogpost.title }}</a></h4>
+    {% empty %}
+        <li>No posts yet.</li>
+    {% endfor %}
+</body>
+</html>

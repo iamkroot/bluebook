@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ object.title }}</title>
+</head>
+<body>
+    <h1>{{ object.title }}</h1>
+    <p>{{ object.content }}</p>
+    
+    <h3>Tags</h3>
+    <ul>
+        {% for tag in object.tags.all %}
+            <li><a href="{% url 'tag-detail' tag.name %}">{{ tag.name }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

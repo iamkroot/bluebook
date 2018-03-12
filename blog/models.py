@@ -2,12 +2,16 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
 
 
 class Tag(models.Model):
     """Tag of a resource."""
     name = models.CharField(max_length=30, unique=True)
     description = models.TextField(max_length=200, blank=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Profile(models.Model):
@@ -20,6 +24,9 @@ class Profile(models.Model):
         blank=True
     )
     blacklist = models.ManyToManyField(Tag, blank=True)
+
+    def __str__(self):
+        return self.user.username
 
 
 @receiver(post_save, sender=User)
@@ -45,3 +52,9 @@ class Post(models.Model):
         permissions = (
             ('can_delete', 'Can delete the posts'),
         )
+
+    def get_absolute_url(self):
+        return reverse('post-detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.title
