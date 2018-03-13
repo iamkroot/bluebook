@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile of {{ object.user.username }}</title>
+</head>
+<body>
+Name: {{ object.user.username }}<br>
+Email: {{ object.user.email }}<br>
+Posts: 
+    {% for post in object.posts.all %}
+    <li><a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a></li>
+    {% empty %}
+    No posts yet.
+    {% endfor %}
+Favs: 
+    {% for post in object.favorites.all %}
+    <li><a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a></li>
+    {% empty %}
+    No favorites yet.
+    {% endfor %}
+Blacklisted:
+    {% for tag in object.blacklist.all %}
+    <li><a href="{% url 'tag-detail' tag.name %}">{{ tag.name }}</a></li>
+    {% empty %}
+    No posts yet.
+    {% endfor %}
+
+<a href="{% url 'password_change' %}">Change Password</a>
+</body>
+</html>

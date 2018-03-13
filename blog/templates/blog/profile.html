@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile of {{ object.user.username }}</title>
+</head>
+<body>
+Name: {{ object.user.username }}<br>
+Email: {{ object.user.email }}<br>
+Posts: 
+    {% for post in object.posts.all %}
+    <li><a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a></li>
+    {% empty %}
+    No posts yet.
+    {% endfor %}
+</body>
+</html>

@@ -1,8 +1,8 @@
 # from django.shortcuts import render
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, View
 from django.views.generic.dates import ArchiveIndexView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from .models import Post, Tag
+from .models import Post, Tag, Profile
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
 
@@ -39,9 +39,24 @@ class TagDetail(ListView):
 
     def get_queryset(self):
         self.tag = get_object_or_404(Tag, name=self.kwargs['tag_name'])
-        return self.tag.posts.all().order_by('-pub_date')
+        return self.tag.posts.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['tag_name'] = self.kwargs['tag_name']
         return context
+
+
+class AccountProfile(DetailView):
+    template_name = 'account/account_profile.html'
+
+    def get_object(self):
+        return get_object_or_404(Profile, user=self.request.user)
+
+
+class UserProfile(DetailView):
+    model = Profile
+    template_name = 'blog/profile.html'
+
+    def get_object(self):
+        return get_object_or_404(Profile, user__username=self.kwargs['uname'])

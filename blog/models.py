@@ -16,7 +16,11 @@ class Tag(models.Model):
 
 class Profile(models.Model):
     """Profile of a user in the site."""
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True
+    )
     bio = models.TextField(max_length=500, blank=True)
     favorites = models.ManyToManyField(
         'Post',
@@ -45,13 +49,18 @@ class Post(models.Model):
     title = models.CharField(max_length=200)
     content = models.TextField()
     tags = models.ManyToManyField(Tag, related_name='posts')
-    author = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    author = models.ForeignKey(
+        Profile,
+        on_delete=models.CASCADE,
+        related_name='posts'
+    )
     pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         permissions = (
             ('can_delete', 'Can delete the posts'),
         )
+        ordering = ['-pub_date']
 
     def get_absolute_url(self):
         return reverse('post-detail', kwargs={'pk': self.pk})

@@ -1,5 +1,5 @@
 from django.urls import path
-
+from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
@@ -8,5 +8,10 @@ urlpatterns = [
     path('post/add', views.PostCreate.as_view(), name='post-new'),
     path('post/<pk>/update', views.PostUpdate.as_view(), name='post-update'),
     path('post/<pk>/delete', views.PostDelete.as_view(), name='post-delete'),
-    path('tag/<tag_name>', views.TagDetail.as_view(), name='tag-detail')
+    path('tag/<tag_name>', views.TagDetail.as_view(), name='tag-detail'),
+    path('profile/<uname>', views.UserProfile.as_view(), name='user-profile'),
+    path(
+        'accounts/login/',
+        auth_views.LoginView.as_view(template_name='account/login.html')
+    ),
 ]
