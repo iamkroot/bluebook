@@ -1,7 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.urls import reverse
 
 
@@ -33,17 +31,6 @@ class Profile(models.Model):
         return self.user.username
 
 
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
-
-
 class Post(models.Model):
     """Represents a resource post."""
     title = models.CharField(max_length=200)
@@ -57,9 +44,11 @@ class Post(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        permissions = (
-            ('can_delete', 'Can delete the posts'),
-        )
+        # permissions = (
+        #     ('create_post', 'Can create a new post'),
+        #     ('update_post', 'Can update an existing post'),
+        #     ('delete_post', 'Can delete the post'),
+        # )
         ordering = ['-pub_date']
 
     def get_absolute_url(self):

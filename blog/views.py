@@ -1,10 +1,20 @@
-# from django.shortcuts import render
-from django.views.generic import DetailView, ListView, View
+from django.views.generic import DetailView, ListView
 from django.views.generic.dates import ArchiveIndexView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from .models import Post, Tag, Profile
+from .models import Post, Profile, Tag
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+
+
+class PostEditTestMixin(UserPassesTestMixin):
+    def test_func(self):
+        if not self.request.user.is_authenticated:
+            return False
+        if self.request.user.groups.filter(name='Moderator').exists():
+            return True
+        current_profile = get_object_or_404(Profile, user=self.request.user)
+        return self.get_object().author == current_profile
 
 
 class PostList(ArchiveIndexView):
@@ -19,17 +29,22 @@ class PostDetail(DetailView):
     template_name = 'blog/post_detail.html'
 
 
-class PostCreate(CreateView):
+class PostCreate(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ['title', 'content', 'tags', 'author']
+    fields = ['title', 'content', 'tags']
+
+    def form_valid(self, form):
+        form.instance.author = get_object_or_404(
+            Profile, user=self.request.user)
+        return super().form_valid(form)
 
 
-class PostUpdate(UpdateView):
+class PostUpdate(PostEditTestMixin, UpdateView):
     model = Post
     fields = ['title', 'content', 'tags']
 
 
-class PostDelete(DeleteView):
+class PostDelete(PostEditTestMixin, DeleteView):
     model = Post
     success_url = reverse_lazy('post-list')
 
@@ -47,14 +62,14 @@ class TagDetail(ListView):
         return context
 
 
-class AccountProfile(DetailView):
+class AccountProfile(LoginRequiredMixin, DetailView):
     template_name = 'account/account_profile.html'
 
     def get_object(self):
         return get_object_or_404(Profile, user=self.request.user)
 
 
-class UserProfile(DetailView):
+class UserProfile(LoginRequiredMixin, DetailView):
     model = Profile
     template_name = 'blog/profile.html'
 
