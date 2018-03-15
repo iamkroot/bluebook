@@ -1,13 +1,15 @@
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView
 from django.views.generic.dates import ArchiveIndexView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from .models import Post, Profile, Tag
+from .models import Post, Profile, Category
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 
 class PostEditTestMixin(UserPassesTestMixin):
+    """Permission mixin to test if the user can update/delete the post."""
+
     def test_func(self):
         if not self.request.user.is_authenticated:
             return False
@@ -31,7 +33,7 @@ class PostDetail(DetailView):
 
 class PostCreate(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ['title', 'content', 'tags']
+    fields = ['title', 'content', 'categories']
 
     def form_valid(self, form):
         form.instance.author = get_object_or_404(
@@ -41,7 +43,7 @@ class PostCreate(LoginRequiredMixin, CreateView):
 
 class PostUpdate(PostEditTestMixin, UpdateView):
     model = Post
-    fields = ['title', 'content', 'tags']
+    fields = ['title', 'content', 'categories']
 
 
 class PostDelete(PostEditTestMixin, DeleteView):
@@ -49,20 +51,16 @@ class PostDelete(PostEditTestMixin, DeleteView):
     success_url = reverse_lazy('post-list')
 
 
-class TagDetail(ListView):
-    template_name = 'blog/tag_detail.html'
+class CategoryDetail(DetailView):
+    template_name = 'blog/category_detail.html'
 
-    def get_queryset(self):
-        self.tag = get_object_or_404(Tag, name=self.kwargs['tag_name'])
-        return self.tag.posts.all()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['tag_name'] = self.kwargs['tag_name']
-        return context
+    def get_object(self):
+        cat_name = self.kwargs['category_name']
+        return get_object_or_404(Category, name__iexact=cat_name)
 
 
 class AccountProfile(LoginRequiredMixin, DetailView):
+    """Private profile of the user."""
     template_name = 'account/account_profile.html'
 
     def get_object(self):
@@ -70,6 +68,7 @@ class AccountProfile(LoginRequiredMixin, DetailView):
 
 
 class UserProfile(LoginRequiredMixin, DetailView):
+    """Public profile of the user."""
     model = Profile
     template_name = 'blog/profile.html'
 

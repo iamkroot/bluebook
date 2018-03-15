@@ -19,8 +19,8 @@ Favs:
     No favorites yet.
     {% endfor %}
 Blacklisted:
-    {% for tag in object.blacklist.all %}
-    <li><a href="{% url 'tag-detail' tag.name %}">{{ tag.name }}</a></li>
+    {% for category in object.blacklist.all %}
+    <li><a href="{% url 'category-detail' category.name %}">{{ category.name }}</a></li>
     {% empty %}
     No posts yet.
     {% endfor %}

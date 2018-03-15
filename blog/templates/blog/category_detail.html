@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Posts for {{ category.name }}</title>
+</head>
+<body>
+    <h2>Description</h2>
+    <p>{{ category.description }}</p>
+    <h2>Posts for {{ category.name }}</h2>
+    {% for post in category.posts.all %}
+        <h4><a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a></h4>
+    {% empty %}
+        <li>No posts for this category yet.</li>
+    {% endfor %}
+</body>
+</html>

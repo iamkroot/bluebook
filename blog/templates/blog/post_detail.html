@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ object.title }}</title>
+    <title>{{ post.title }}</title>
 </head>
 <body>
-    <h1>{{ object.title }}</h1>
-    <p>{{ object.content }}</p>
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.content }}</p>
     
-    <h3>Tags</h3>
+    <h3>Categories</h3>
     <ul>
-        {% for tag in object.tags.all %}
-            <li><a href="{% url 'tag-detail' tag.name %}">{{ tag.name }}</a></li>
+        {% for category in post.categories.all %}
+            <li><a href="{% url 'category-detail' category.name %}">{{ category.name }}</a></li>
         {% endfor %}
     </ul>
-    <p>{{ object.pub_date }}
+    <p>{{ post.pub_date }}
 </body>
 </html>
