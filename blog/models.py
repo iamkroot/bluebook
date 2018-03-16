@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
 
 class Category(models.Model):
@@ -12,6 +10,9 @@ class Category(models.Model):
 
     class Meta:
         verbose_name_plural = 'Categories'
+
+    def get_absolute_url(self):
+        return reverse('category-detail', kwargs={'category_name': self.name})
 
     def __str__(self):
         return self.name
@@ -31,6 +32,9 @@ class Profile(models.Model):
         blank=True
     )
     blacklist = models.ManyToManyField(Category, blank=True)
+
+    def get_absolute_url(self):
+        return reverse('user-profile', kwargs={'uname': self.user.username})
 
     def __str__(self):
         return self.user.username
@@ -56,14 +60,3 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
-
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()

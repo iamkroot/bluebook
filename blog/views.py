@@ -1,7 +1,8 @@
 from django.views.generic import DetailView
 from django.views.generic.dates import ArchiveIndexView
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 from .models import Post, Profile, Category
+from .forms import SignUpForm
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -57,6 +58,19 @@ class CategoryDetail(DetailView):
     def get_object(self):
         cat_name = self.kwargs['category_name']
         return get_object_or_404(Category, name__iexact=cat_name)
+
+
+class SignUpView(FormView):
+    template_name = 'account/signup.html'
+    form_class = SignUpForm
+    success_url = '/accounts/login'
+
+    def form_valid(self, form):  # Save Profile bio to database
+        user = form.save()
+        user.refresh_from_db()
+        user.profile.bio = form.cleaned_data.get('bio')
+        user.save()
+        return super().form_valid(form)
 
 
 class AccountProfile(LoginRequiredMixin, DetailView):

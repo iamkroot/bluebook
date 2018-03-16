@@ -26,12 +26,17 @@ urlpatterns = [
         name='category-detail'
     ),
     re_path(
-        r'profile/(?P<username>[\w.@+-]+)/$',
+        r'profile/(?P<uname>[\w.@+-]+)/$',
         views.UserProfile.as_view(),
         name='user-profile'
     ),
     re_path(
         r'^accounts/login/$',
         auth_views.LoginView.as_view(template_name='account/login.html')
+    ),
+    re_path(
+        r'^accounts/signup/$',
+        views.SignUpView.as_view(),
+        name='user-signup'
     ),
 ]
