@@ -1,16 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Profile of {{ object.user.username }}</title>
+    <title>Profile of {{ profile.user.username }}</title>
 </head>
 <body>
-Name: {{ object.user.username }}<br>
-Email: {{ object.user.email }}<br>
-Posts: 
-    {% for post in object.posts.all %}
+Name: {{ profile.user.username }}
+{% if profile.bio %}
+<br>Bio: {{ profile.bio }}
+{% endif %}
+{% if profile.user.email %}
+<br>Email: {{ profile.user.email }}
+{% endif %}
+<br>Posts: 
+    {% for post in profile.posts.all %}
     <li><a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a></li>
     {% empty %}
     No posts yet.
     {% endfor %}
+{% ifequal request.user profile.user %}
+<br>Favs: 
+    {% for post in object.favorites.all %}
+    <li><a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a></li>
+    {% empty %}
+    No favorites yet.
+    {% endfor %}
+<br>Blacklisted:
+    {% for category in object.blacklist.all %}
+    <li><a href="{% url 'category-detail' category.name %}">{{ category.name }}</a></li>
+    {% empty %}
+    No posts yet.
+    {% endfor %}
+
+<br><a href="{% url 'password_change' %}">Change Password</a>
+{% endifequal %}
 </body>
 </html>

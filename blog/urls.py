@@ -26,7 +26,12 @@ urlpatterns = [
         name='category-detail'
     ),
     re_path(
-        r'profile/(?P<uname>[\w.@+-]+)/$',
+        r'^(accounts/)?profile/$',
+        views.RedirectLoggedInUserView.as_view(),
+        name='redirect-to-own-profile'
+    ),
+    re_path(
+        r'^profile/(?P<uname>[\w.@+-]*)/$',
         views.UserProfile.as_view(),
         name='user-profile'
     ),

@@ -1,6 +1,9 @@
 from django.views.generic import DetailView
 from django.views.generic.dates import ArchiveIndexView
-from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
+from django.views.generic.edit import (
+    CreateView, UpdateView, DeleteView, FormView
+)
+from django.views.generic.base import RedirectView
 from .models import Post, Profile, Category
 from .forms import SignUpForm
 from django.urls import reverse_lazy
@@ -73,16 +76,13 @@ class SignUpView(FormView):
         return super().form_valid(form)
 
 
-class AccountProfile(LoginRequiredMixin, DetailView):
-    """Private profile of the user."""
-    template_name = 'account/account_profile.html'
-
-    def get_object(self):
-        return get_object_or_404(Profile, user=self.request.user)
+class RedirectLoggedInUserView(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        return reverse_lazy(
+            'user-profile', kwargs={'uname': self.request.user.username})
 
 
 class UserProfile(LoginRequiredMixin, DetailView):
-    """Public profile of the user."""
     model = Profile
     template_name = 'blog/profile.html'
 
