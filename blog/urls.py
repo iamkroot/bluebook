@@ -21,6 +21,11 @@ urlpatterns = [
         name='post-delete'
     ),
     re_path(
+        r'^post/(?P<pk>\d+)/addfav/$',
+        views.PostFavorite.as_view(),
+        name='post-add-fav'
+    ),
+    re_path(
         r'^category/(?P<category_name>[-\w]+)/$',
         views.CategoryDetail.as_view(),
         name='category-detail'

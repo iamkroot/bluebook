@@ -47,7 +47,7 @@ class Post(models.Model):
     categories = models.ManyToManyField(Category, related_name='posts')
     author = models.ForeignKey(
         Profile,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name='posts'
     )
     pub_date = models.DateTimeField(auto_now_add=True)

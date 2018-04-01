@@ -5,10 +5,12 @@ from django.views.generic.edit import (
 )
 from django.views.generic.base import RedirectView
 from .models import Post, Profile, Category
-from .forms import SignUpForm
+from .forms import SignUpForm, AddFavorite
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic.detail import SingleObjectMixin
+from django.http import HttpResponseForbidden
 
 
 class PostEditTestMixin(UserPassesTestMixin):
@@ -33,6 +35,37 @@ class PostList(ArchiveIndexView):
 class PostDetail(DetailView):
     model = Post
     template_name = 'blog/post_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            profile = get_object_or_404(Profile, user=self.request.user)
+            initial = profile.favorites.filter(id=self.object.id).exists()
+            context['form'] = AddFavorite(initial={'fav': initial})
+        return context
+
+
+class PostFavorite(SingleObjectMixin, FormView):
+    model = Post
+    template_name = 'blog/post_detail.html'
+    form_class = AddFavorite
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+        self.object = self.get_object()
+        return super().post(request, *args, **kwargs)
+
+    def form_valid(self, form):  # add or remove post from favorites
+        profile = get_object_or_404(Profile, user=self.request.user)
+        if not form.cleaned_data.get('fav'):
+            self.object.favorited_by.remove(profile)
+        else:
+            self.object.favorited_by.add(profile)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('post-detail', kwargs={'pk': self.object.pk})
 
 
 class PostCreate(LoginRequiredMixin, CreateView):

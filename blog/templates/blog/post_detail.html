@@ -7,7 +7,16 @@
     <h1>{{ post.title }}</h1>
     <p>Author: {{ post.author }}</p>
     <p>{{ post.content }}</p>
-    
+    {% if user.is_authenticated %}
+        <p>
+        <form action="{% url 'post-add-fav' post.pk %}" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="Save">
+        </form>
+    {% else %}
+    <p>Login to add post to favorites.</p>
+    {% endif %}
     <h3>Categories</h3>
     <ul>
         {% for category in post.categories.all %}
