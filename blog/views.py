@@ -5,7 +5,7 @@ from django.views.generic.edit import (
 )
 from django.views.generic.base import RedirectView
 from .models import Post, Profile, Category
-from .forms import SignUpForm, AddFavorite
+from .forms import SignUpForm, AddFavorite, CommentForm
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -41,7 +41,10 @@ class PostDetail(DetailView):
         if self.request.user.is_authenticated:
             profile = get_object_or_404(Profile, user=self.request.user)
             initial = profile.favorites.filter(id=self.object.id).exists()
-            context['form'] = AddFavorite(initial={'fav': initial})
+            context['fav_form'] = AddFavorite(initial={'fav': initial})
+            context['comment_form'] = CommentForm(
+                initial={'author': profile, 'post': self.object}
+            )
         return context
 
 
@@ -62,6 +65,29 @@ class PostFavorite(SingleObjectMixin, FormView):
             self.object.favorited_by.remove(profile)
         else:
             self.object.favorited_by.add(profile)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('post-detail', kwargs={'pk': self.object.pk})
+
+
+class CommentCreate(SingleObjectMixin, FormView):
+    """Comment form view for post."""
+    model = Post
+    template_name = 'blog/post_detail.html'
+    form_class = CommentForm
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+        self.object = self.get_object()
+        self.author = request.user.profile
+        return super().post(request, *args, **kwargs)
+
+    def form_valid(self, form):  # add comment
+        form.instance.post = self.object
+        form.instance.author = self.author
+        form.instance.save()
         return super().form_valid(form)
 
     def get_success_url(self):

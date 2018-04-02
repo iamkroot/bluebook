@@ -26,6 +26,11 @@ urlpatterns = [
         name='post-add-fav'
     ),
     re_path(
+        r'^post/(?P<pk>\d+)/comments/add$',
+        views.CommentCreate.as_view(),
+        name='post-add-comment'
+    ),
+    re_path(
         r'^category/(?P<category_name>[-\w]+)/$',
         views.CategoryDetail.as_view(),
         name='category-detail'
